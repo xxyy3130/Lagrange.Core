@@ -71,7 +71,7 @@ internal class MessagingLogic : LogicBase
                 var chain = push.Chain;
 
                 // Intercept group invitation
-                if (chain.Count == 1 && chain[0] is LightAppEntity { AppName: "com.tencent.qun.invite" } app)
+                if (chain.Count == 1 && chain[0] is LightAppEntity { AppName: "com.tencent.tuwen.lua", BizSrc : "qun.invite" } app)
                 {
                     using var document = JsonDocument.Parse(app.Payload);
                     var root = document.RootElement;
