@@ -11,7 +11,8 @@ namespace Lagrange.Core.Message.Entity;
 public class LightAppEntity : IMessageEntity
 {
     public string AppName { get; set; } = string.Empty;
-    
+    public string BizSrc { get; set; } = string.Empty;
+
     public string Payload { get; set; } = string.Empty;
     
     public LightAppEntity() { }
@@ -19,8 +20,11 @@ public class LightAppEntity : IMessageEntity
     public LightAppEntity(string payload)
     {
         Payload = payload;
-        string? app = JsonNode.Parse(payload)?["app"]?.ToString();
+        var j = JsonNode.Parse(payload);
+        string? app = j?["app"]?.ToString();
         if (app != null) AppName = app;
+        string? bizsrc = j?["bizsrc"]?.ToString();
+        if (bizsrc != null) BizSrc = bizsrc;
     }
     
     IEnumerable<Elem> IMessageEntity.PackElement()
@@ -48,18 +52,24 @@ public class LightAppEntity : IMessageEntity
         {
             var payload = ZCompression.ZDecompress(lightApp.Data.AsSpan(1), false);
             string json = Encoding.UTF8.GetString(payload);
-            string? app = JsonNode.Parse(json)?["app"]?.ToString();
-
+            var j = JsonNode.Parse(json);
+            string? app = j?["app"]?.ToString();
+            string? bizsrc = j?["bizsrc"]?.ToString();
+            var appEntity = new LightAppEntity
+            {
+                Payload = json
+            };
             if (app != null)
             {
-                return new LightAppEntity
-                {
-                    AppName = app,
-                    Payload = json
-                };
+                appEntity.AppName = app;
             }
+            if (bizsrc != null)
+            {
+                appEntity.BizSrc = bizsrc;
+            }
+            return appEntity;
         }
-        
+
         return null;
     }
 
